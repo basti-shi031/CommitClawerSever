@@ -2,24 +2,52 @@ import U
 import re
 import File
 
-
 # 如果没有parent branch，返回空
 # 否则返回改变的文件列表
+from Meta import Meta
+
+
 def convert_commit_info(soup, url):
     # 获取parentBranch Id,list形式
     parent_branch_id_html = soup.findAll('a', attrs={'class': 'sha'})
     if parent_branch_id_html is None or len(parent_branch_id_html) == 0:
         # 没有parent branch
         U.p("No Parent Branch")
-        return
+        return None ,None
     else:
+        author = None
+        date = None
+        committer = None
+        commit_hash = None
+        children = None
+        parents = []
+        # <a class="url fn" rel="author" href="/basti-shi031">basti-shi031</a>
+        # 作者
+        author = soup.find('a', attrs={'class': 'url fn', 'rel': 'author'}).text
+        # <relative-time datetime="2016-01-11T03:09:39Z" title="2016年1月11日 GMT+8 上午11:09">on 11 Jan 2016</relative-time>
+        # 时间
+        date = soup.find('relative-time').get('datetime')
+        # <a href="/basti-shi031/RichTextView/commits?author=basti-shi031"
+        # class="commit-author tooltipped tooltipped-s user-mention"
+        # aria-label="View all commits by basti-shi031">basti-shi031</a>
+        # committer
+        committer = soup.find('a', attrs={'class': 'commit-author tooltipped tooltipped-s user-mention'}).text
+        # <span class="sha user-select-contain">1a2219ebb73464497f5efa8dba8823781a4e887e</span>
+        # commit_hash
+        commit_hash = soup.find('span', attrs={'class': 'sha user-select-contain'}).text
+        U.p(author)
+        U.p(date)
+        U.p(committer)
+        U.p(commit_hash)
         parent_ids = []
         parent_urls = []
         for html in parent_branch_id_html:
             parent_branch_id = html.string
             parent_branch_url = html.get('href')
+            parents.append(parent_branch_url.split('/')[-1])
             parent_ids.append(parent_branch_id)
             parent_urls.append('https://github.com' + parent_branch_url)
+        meta = Meta(author, date, committer, commit_hash, children, parents)
         # /basti-shi031/LeetCode_Python/commit/d6e5d51963b237b0df4534aad0ffea9780390052
         # 查找改变的文件列表
         # 先找span标签 class 为diffstat float-right
@@ -32,7 +60,7 @@ def convert_commit_info(soup, url):
             action = li.find('svg').get("title")
             if filter_file(file_name):
                 file_list.append(File.File(file_name, action, url, parent_urls, parent_ids, ""))
-        return file_list
+        return file_list,meta
 
 
 def filter_file(file):
