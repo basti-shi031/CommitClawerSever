@@ -20,6 +20,7 @@ def convert_commit_info(soup, url):
         committer = None
         commit_hash = None
         children = None
+        commit_log = None
         parents = []
         # <a class="url fn" rel="author" href="/basti-shi031">basti-shi031</a>
         # 作者
@@ -35,10 +36,17 @@ def convert_commit_info(soup, url):
         # <span class="sha user-select-contain">1a2219ebb73464497f5efa8dba8823781a4e887e</span>
         # commit_hash
         commit_hash = soup.find('span', attrs={'class': 'sha user-select-contain'}).text
+        # <p class="commit-title">
+        #       Merge branch 'master' of <a href="https://git
+        # hub.com/basti-shi031/RichTextView">https://github.com/basti-shi031/RichTextView</a>
+        #     </p>
+        # commit_log
+        commit_log = soup.find('p',attrs={'class':'commit-title'}).text
         U.p(author)
         U.p(date)
         U.p(committer)
         U.p(commit_hash)
+        U.p(commit_log)
         parent_ids = []
         parent_urls = []
         for html in parent_branch_id_html:
@@ -47,7 +55,7 @@ def convert_commit_info(soup, url):
             parents.append(parent_branch_url.split('/')[-1])
             parent_ids.append(parent_branch_id)
             parent_urls.append('https://github.com' + parent_branch_url)
-        meta = Meta(author, date, committer, commit_hash, children, parents)
+        meta = Meta(author, date, committer, commit_hash, commit_log,children, parents)
         # /basti-shi031/LeetCode_Python/commit/d6e5d51963b237b0df4534aad0ffea9780390052
         # 查找改变的文件列表
         # 先找span标签 class 为diffstat float-right
