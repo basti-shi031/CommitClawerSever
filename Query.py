@@ -12,13 +12,13 @@ class Query(object):
 
     def query(self):
         print(self.url)
-        if not re.compile('^https://github.com/'):
-            return Message.invalid_url
+        if not re.match('^https://github.com/', self.url):
+            return Message.invalid_url,None
         else:
             file_list, meta = fetch(self.url)
             if (file_list is None):
                 # 为空，说明没有parent commit
-                return None,None
+                return Message.no_parent_commit, None
             else:
                 download(file_list)
                 return file_list, meta
@@ -36,6 +36,7 @@ def fetch(url):
                 NetUtil.convert2_raw_url(file)
             return file_list, meta
     elif status_code == 404:
+        # todo
         print('error')
         return None, None
 

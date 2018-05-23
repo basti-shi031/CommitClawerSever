@@ -7,6 +7,7 @@ from requests_toolbelt.multipart import encoder
 
 import Message
 from Query import Query
+from Result import Result
 
 divider = '----'
 
@@ -79,17 +80,27 @@ class PostHandler(BaseHTTPRequestHandler):
         if file_list is not None:
             if file_list == Message.invalid_url:
                 #     无效url，不访问服务器
-                self.send_response(200, file_list)
+                self.send_response(200)
+                self.end_headers()
+                result = Result(True, "please enter correct commit url")
+                self.wfile.write(result.__dict__.__str__().encode())
+            elif file_list == Message.no_parent_commit:
+                self.send_response(200)
+                self.end_headers()
+                result = Result(True, "commit has no parent commits")
+                self.wfile.write(result.__dict__.__str__().encode())
             else:
                 # 访问服务器
                 # 此时已经获得所有文件，生成一个
                 multipart_encoder = initData(file_list, meta)
-                r = requests.post('http://httpbin.org/post', data=multipart_encoder,
+                r = requests.post('http://localhost:12007/DiffMiner/main', data=multipart_encoder,
                                   headers={'Content-Type': multipart_encoder.content_type})
                 print(r.request.body)
                 print(r.status_code)
                 self.send_response(200)
                 self.end_headers()
+                result = Result(True, "")
+                self.wfile.write(result.__dict__.__str__().encode())
             # self.wfile.write(('Client: %sn \n' % str(self.client_address)).encode())
             # self.wfile.write(('User-agent: %sn\n' % str(self.headers['user-agent'])).encode())
             # self.wfile.write(('Path: %sn\n'%self.path).encode())
@@ -101,15 +112,18 @@ class PostHandler(BaseHTTPRequestHandler):
             #     self.wfile.write(content)
             return
         else:
-            self.send_response(404)
+            self.send_response(200)
+            result = Result(True, "please enter correct commit url")
             self.end_headers()
+            self.wfile.write(result.__dict__.__str__().encode())
             return
 
 
 def StartServer():
+    port = 8081
     print('server started')
     from http.server import HTTPServer
-    sever = HTTPServer(("", 8080), PostHandler)
+    sever = HTTPServer(("", port), PostHandler)
     sever.serve_forever()
 
 
