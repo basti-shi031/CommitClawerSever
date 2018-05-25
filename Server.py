@@ -92,11 +92,11 @@ class PostHandler(BaseHTTPRequestHandler):
             else:
                 # 访问服务器
                 # 此时已经获得所有文件，生成一个
-                multipart_encoder = initData(file_list, meta)
-                r = requests.post('http://localhost:12007/DiffMiner/main', data=multipart_encoder,
-                                  headers={'Content-Type': multipart_encoder.content_type})
-                print(r.request.body)
-                print(r.status_code)
+                # multipart_encoder = initData(file_list, meta)
+                # r = requests.post('http://localhost:12007/DiffMiner/main', data=multipart_encoder,
+                #                   headers={'Content-Type': multipart_encoder.content_type})
+                # print(r.request.body)
+                # print(r.status_code)
                 self.send_response(200)
                 self.end_headers()
                 result = Result(True, "")
