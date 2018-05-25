@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 # 根据url返回soup信息
 def fetch_info(url):
-    response = requests.get(url)
+    response = requests.get(url,timeout=20)
     response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, "html.parser")
     return soup, response.status_code

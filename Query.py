@@ -11,11 +11,12 @@ class Query(object):
         self.url = url
 
     def query(self):
-        print(self.url)
+        U.p(self.url)
         if not re.match('^https://github.com/', self.url):
             return Message.invalid_url,None
         else:
             file_list, meta = fetch(self.url)
+            U.p(file_list)
             if (file_list is None):
                 # 为空，说明没有parent commit
                 return Message.no_parent_commit, None
@@ -42,6 +43,7 @@ def fetch(url):
 
 
 def download_file(file):
+    U.p(file.raw_url)
     raw_soup, status_code = NetUtil.fetch_info(file.raw_url)
     if status_code == 200:
         file.raw = raw_soup.text
@@ -58,7 +60,6 @@ def download_file(file):
             # 无文件
             parent_raw = ''
         parent_raws.insert(index, parent_raw)
-        U.p(file.name)
     file.set_parent_raws(parent_raws)
 
 
