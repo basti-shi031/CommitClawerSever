@@ -21,11 +21,6 @@ def initData(file_list, meta):
         for index in range(size):
             parent_url = file.parent_urls[index]
             parent_raw = file.parent_raws[index]
-            print(parent_url, parent_raw)
-            print(type(parent_url))
-            print(type(file.name))
-            print(type(divider))
-            print(type(index))
             multiple_files.append((parent_url + '/' + str(file.name) + divider + 'parent' + str(index), parent_raw))
     multiple_files.append(('meta', json.dumps(meta.__dict__)))
     print(json.dumps(meta.__dict__))
@@ -90,17 +85,18 @@ class PostHandler(BaseHTTPRequestHandler):
                 result = Result(True, "commit has no parent commits")
                 self.wfile.write(result.__dict__.__str__().encode())
             else:
-                # 访问服务器
-                # 此时已经获得所有文件，生成一个
-                # multipart_encoder = initData(file_list, meta)
-                # r = requests.post('http://localhost:12007/DiffMiner/main', data=multipart_encoder,
-                #                   headers={'Content-Type': multipart_encoder.content_type})
-                # print(r.request.body)
-                # print(r.status_code)
                 self.send_response(200)
                 self.end_headers()
                 result = Result(True, "")
                 self.wfile.write(result.__dict__.__str__().encode())
+                # 访问服务器
+                # 此时已经获得所有文件，生成一个
+                multipart_encoder = initData(file_list, meta)
+                print(multipart_encoder)
+                r = requests.post('http://localhost:12007/DiffMiner/main', data=multipart_encoder,
+                                  headers={'Content-Type': multipart_encoder.content_type})
+                self.wfile.write(result.__dict__.__str__().encode())
+
             # self.wfile.write(('Client: %sn \n' % str(self.client_address)).encode())
             # self.wfile.write(('User-agent: %sn\n' % str(self.headers['user-agent'])).encode())
             # self.wfile.write(('Path: %sn\n'%self.path).encode())
