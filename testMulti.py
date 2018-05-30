@@ -42,6 +42,17 @@ def initData(file_list, meta):
 # print(r.request.body)
 # print(r.content)
 # print(r.status_code)
-commit_hash = '12312314'
-a = {'commit_hash': commit_hash}
-r = requests.post('http://localhost:12007/DiffMiner/main/fetchMetaCache', json=a)
+# commit_hash = '12312314'
+# a = {'commit_hash': commit_hash}
+# r = requests.post('http://localhost:12007/DiffMiner/main/fetchMetaCache', json=a)
+author = ''
+commit_hash = '220a1865d80f5bd46cd378d060dfd0ba276b8c57'
+parent_commit_hash = 'd055523c185381f084496d74730988fcd6d4e9f5'
+project_name = 'ThirdPartyLibraryAnalysis'
+prev_file_path = 'prev/d055523c185381f084496d74730988fcd6d4e9f5/src/main/java/cn/edu/fudan/se/api/FileDbDataFlow.java'
+curr_file_path = 'curr/d055523c185381f084496d74730988fcd6d4e9f5/src/main/java/cn/edu/fudan/se/api/FileDbDataFlow.java'
+a = {'commit_hash': commit_hash, 'parent_commit_hash': commit_hash, 'project_name': project_name,
+     'prev_file_path': prev_file_path, 'curr_file_path': curr_file_path};
+r = requests.post("http://localhost:12007/DiffMiner/main/fetchContent", json=a)
+content = r.content
+print(content)

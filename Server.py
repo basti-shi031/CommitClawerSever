@@ -127,6 +127,50 @@ class PostHandler(BaseHTTPRequestHandler):
                 return
 
 
+class ContentHandler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        form = cgi.FieldStorage(
+            fp=self.rfile,
+            headers=self.headers,
+            environ={'REQUEST_METHOD': 'POST',
+                     'CONTENT_TYPE': self.headers['Content-Type'],
+                     }
+        )
+        for field in form.keys():
+            field_item = form[field]
+            key = field_item.name
+            value = field_item.value
+            # filesize = len(filevalue)#文件大小(字节)
+            # print len(filevalue)
+            # print(key)
+            if key == 'artifactId':
+                artifactId = value
+            if key == 'groupId':
+                groupId = value
+            if key == 'version':
+                version = value
+            if key == 'url':
+                url = value
+                print(url)
+            # print(value)
+            # with open(filename+".txt",'wb') as f:
+            #     f.write(filevalue)
+        # author、commit_hash、parent_commit_hash、project_name、prev_file_path、curr_file_path
+        author = ''
+        commit_hash = ''
+        parent_commit_hash = ''
+        project_name = ''
+        prev_file_path = ''
+        curr_file_path = ''
+        file = ''
+        a = {};
+        r = requests.post("http://localhost:12007/DiffMiner/main/content", json=a)
+        content = r.content
+        self.send_response(200)
+        self.end_headers(200)
+        self.wfile.write(content.encode())
+
+
 def StartServer():
     port = 8081
     print('server started')
