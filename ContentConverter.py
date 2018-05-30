@@ -13,7 +13,7 @@ def convert_commit_info(soup, url):
     if parent_branch_id_html is None or len(parent_branch_id_html) == 0:
         # 没有parent branch
         U.p("No Parent Branch")
-        return None ,None
+        return None, None
     else:
         author = None
         date = None
@@ -22,6 +22,8 @@ def convert_commit_info(soup, url):
         children = None
         commit_log = None
         parents = []
+        # <a data-pjax="#js-repo-pjax-container" href="/basti-shi031/LoopViewPager">LoopViewPager</a>
+        project_name = soup.find('a', attrs={'data-pjax': '#js-repo-pjax-container'}).text
         # <a class="url fn" rel="author" href="/basti-shi031">basti-shi031</a>
         # 作者
         author = soup.find('a', attrs={'class': 'url fn', 'rel': 'author'}).text
@@ -41,7 +43,7 @@ def convert_commit_info(soup, url):
         # hub.com/basti-shi031/RichTextView">https://github.com/basti-shi031/RichTextView</a>
         #     </p>
         # commit_log
-        commit_log = soup.find('p',attrs={'class':'commit-title'}).text
+        commit_log = soup.find('p', attrs={'class': 'commit-title'}).text
         U.p(author)
         U.p(date)
         U.p(committer)
@@ -55,7 +57,7 @@ def convert_commit_info(soup, url):
             parents.append(parent_branch_url.split('/')[-1])
             parent_ids.append(parent_branch_id)
             parent_urls.append('https://github.com' + parent_branch_url)
-        meta = Meta(author, date, committer, commit_hash, commit_log,children, parents)
+        meta = Meta(author, date, committer, commit_hash, commit_log, children, parents, project_name)
         # /basti-shi031/LeetCode_Python/commit/d6e5d51963b237b0df4534aad0ffea9780390052
         # 查找改变的文件列表
         # 先找span标签 class 为diffstat float-right
@@ -68,7 +70,7 @@ def convert_commit_info(soup, url):
             action = li.find('svg').get("title")
             if filter_file(file_name):
                 file_list.append(File.File(file_name, action, url, parent_urls, parent_ids, ""))
-        return file_list,meta
+        return file_list, meta
 
 
 def filter_file(file):

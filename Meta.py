@@ -1,5 +1,5 @@
 class Meta(object):
-    def __init__(self, author, date_time, committer, commit_hash, commit_log, children, parents):
+    def __init__(self, author, date_time, committer, commit_hash, commit_log, children, parents, project_name):
         self.author = author
         self.date_time = date_time
         self.committer = committer
@@ -7,3 +7,4 @@ class Meta(object):
         self.commit_log = commit_log
         self.children = children
         self.parents = parents
+        self.project_name = project_name;
