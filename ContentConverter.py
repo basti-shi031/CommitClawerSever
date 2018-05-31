@@ -60,17 +60,26 @@ def convert_commit_info(soup, url):
         meta = Meta(author, date, committer, commit_hash, commit_log, children, parents, project_name)
         # /basti-shi031/LeetCode_Python/commit/d6e5d51963b237b0df4534aad0ffea9780390052
         # 查找改变的文件列表
-        # 先找span标签 class 为diffstat float-right
-        span_list = soup.findAll(name='span', attrs={"class": "diffstat float-right"})
+        # 修改查找文件的方式
+        print(soup.text)
+        file_list_htmls = soup.findAll('a',attrs={'class':'link-gray-dark'})
         file_list = []
-        for span in span_list:
-            # 遍历列表，获得span的父元素li，通过li获得a标签内容
-            li = span.parent
-            file_name = li.findAll('a', attrs={'href': re.compile('^#diff')})[1].string
-            action = li.find('svg').get("title")
+        for html in file_list_htmls:
+            file_name = html.get("title")
             if filter_file(file_name):
-                file_list.append(File.File(file_name, action, url, parent_urls, parent_ids, ""))
+                file_list.append(File.File(file_name, "", url, parent_urls, parent_ids, ""))
         return file_list, meta
+        # # 先找span标签 class 为diffstat float-right
+        # span_list = soup.findAll(name='span', attrs={"class": "diffstat float-right"})
+        # file_list = []
+        # for span in span_list:
+        #     # 遍历列表，获得span的父元素li，通过li获得a标签内容
+        #     li = span.parent
+        #     file_name = li.findAll('a', attrs={'href': re.compile('^#diff')})[1].string
+        #     action = li.find('svg').get("title")
+        #     if filter_file(file_name):
+        #         file_list.append(File.File(file_name, action, url, parent_urls, parent_ids, ""))
+
 
 
 def filter_file(file):
