@@ -1,3 +1,4 @@
+import NetUtil
 import U
 import re
 import File
@@ -61,15 +62,14 @@ def convert_commit_info(soup, url):
         # /basti-shi031/LeetCode_Python/commit/d6e5d51963b237b0df4534aad0ffea9780390052
         # 查找改变的文件列表
         # 修改查找文件的方式
-        print(soup.text)
-        file_list_htmls = soup.findAll('a',attrs={'class':'link-gray-dark'})
+        file_list_htmls = soup.findAll(name='a',attrs={'class':'link-gray-dark'})
         file_list = []
         for html in file_list_htmls:
             file_name = html.get("title")
             if filter_file(file_name):
                 file_list.append(File.File(file_name, "", url, parent_urls, parent_ids, ""))
         return file_list, meta
-        # # 先找span标签 class 为diffstat float-right
+        # 先找span标签 class 为diffstat float-right
         # span_list = soup.findAll(name='span', attrs={"class": "diffstat float-right"})
         # file_list = []
         # for span in span_list:
@@ -78,8 +78,15 @@ def convert_commit_info(soup, url):
         #     file_name = li.findAll('a', attrs={'href': re.compile('^#diff')})[1].string
         #     action = li.find('svg').get("title")
         #     if filter_file(file_name):
-        #         file_list.append(File.File(file_name, action, url, parent_urls, parent_ids, ""))
-
+        #         diff = li.find('a').get("href")
+        #         # print(diff)
+        #         diffResponse, code = NetUtil.fetch_info(url + diff)
+        #         # print(diffResponse)
+        #         real_file_name_html = diffResponse.find('a',attrs={'href':diff,'class':'link-gray-dark'})
+        #         real_file_name = real_file_name_html.get('title')
+        #         print(real_file_name)
+        #         file_list.append(File.File(real_file_name, action, url, parent_urls, parent_ids, ""))
+        # return file_list, meta
 
 
 def filter_file(file):

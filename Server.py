@@ -40,6 +40,7 @@ def fetchFile(self, form):
     project_name = ''
     prev_file_path = ''
     curr_file_path = ''
+    file = ''
     for field in form.keys():
         field_item = form[field]
         key = field_item.name
@@ -54,10 +55,13 @@ def fetchFile(self, form):
             prev_file_path = value
         if key == 'curr_file_path':
             curr_file_path = value
+        if key == 'file':
+            file = value
     a = {'commit_hash': commit_hash, 'parent_commit_hash': parent_commit_hash, 'project_name': project_name,
          'prev_file_path': prev_file_path, 'curr_file_path': curr_file_path};
     r = requests.post("http://localhost:12007/DiffMiner/main/fetchContent", json=a)
     content = r.content
+    print(content)
     self.send_response(200)
     self.end_headers()
     self.wfile.write(content)
@@ -141,6 +145,7 @@ class PostHandler(BaseHTTPRequestHandler):
                         self.wfile.write(r.content)
                         cache = CommitCache()
                         cache.add_commit_hash(commit_hash, project_name)
+                        cache.close()
                     #    请求结束
                     # 写入数据库
                     return
