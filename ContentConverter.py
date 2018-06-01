@@ -59,16 +59,43 @@ def convert_commit_info(soup, url):
             parent_ids.append(parent_branch_id)
             parent_urls.append('https://github.com' + parent_branch_url)
         meta = Meta(author, date, committer, commit_hash, commit_log, children, parents, project_name)
-        # /basti-shi031/LeetCode_Python/commit/d6e5d51963b237b0df4534aad0ffea9780390052
-        # 查找改变的文件列表
-        # 修改查找文件的方式
-        file_list_htmls = soup.findAll(name='a',attrs={'class':'link-gray-dark'})
+        # 查找改变的文件列表v3
+        # 拼接url
+        # https://github.com/spring-projects/spring-framework/
+        # diffs?commit=3c1adf7f6af0dff9bda74f40dabe8cf428a62003
+        # &sha1=9d63f805b3b3ad07f102f6df779b852b2d1f306c
+        # &sha2=3c1adf7f6af0dff9bda74f40dabe8cf428a62003&start_entry=0
+        # sha1是parent_commit_id
+        # sha2是自己的commit_id
+        # start_entry取0
+        # 传进来的url https://github.com/spring-projects/spring-framework/commit/3c1adf7f6af0dff9bda74f40dabe8cf428a62003
+        # 首先拼接成diff_url
+        diff_url = url.split('/commit/')[0]
+        diff_url = diff_url + '/diffs?commit=' + commit_hash + '&sha1=' + parents[
+            0] + "&sha2=" + commit_hash + "&start_entry=0"
+        diffResponse, code = NetUtil.fetch_info(diff_url)
         file_list = []
+        file_list_htmls = diffResponse.findAll(name='a', attrs={'class': 'link-gray-dark'})
+        print(len(file_list_htmls))
         for html in file_list_htmls:
             file_name = html.get("title")
+            print(file_name)
             if filter_file(file_name):
                 file_list.append(File.File(file_name, "", url, parent_urls, parent_ids, ""))
         return file_list, meta
+        # ===============================================================================
+        # /basti-shi031/LeetCode_Python/commit/d6e5d51963b237b0df4534aad0ffea9780390052
+        # 查找改变的文件列表v2
+        # 修改查找文件的方式
+        # file_list_htmls = soup.findAll(name='a',attrs={'class':'link-gray-dark'})
+        # file_list = []
+        # for html in file_list_htmls:
+        #     file_name = html.get("title")
+        #     if filter_file(file_name):
+        #         file_list.append(File.File(file_name, "", url, parent_urls, parent_ids, ""))
+        # return file_list, meta
+        # =================================================================================
+        # 查找改变的文件列表v1
         # 先找span标签 class 为diffstat float-right
         # span_list = soup.findAll(name='span', attrs={"class": "diffstat float-right"})
         # file_list = []
