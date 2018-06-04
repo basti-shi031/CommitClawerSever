@@ -5,6 +5,7 @@ import json
 import requests
 from requests_toolbelt.multipart import encoder
 
+import Api
 import Message
 from CommitCache import CommitCache
 from Query import Query
@@ -58,13 +59,95 @@ def fetchFile(self, form):
         if key == 'file':
             file = value
     a = {'commit_hash': commit_hash, 'parent_commit_hash': parent_commit_hash, 'project_name': project_name,
-         'prev_file_path': prev_file_path, 'curr_file_path': curr_file_path};
-    r = requests.post("http://localhost:12007/DiffMiner/main/fetchContent", json=a)
+         'prev_file_path': prev_file_path, 'curr_file_path': curr_file_path}
+    # 获取指定文件内容 link diff
+    r = requests.post(Api.FETCH_FILE_CONTENT, json=a)
     content = r.content
     print(content)
     self.send_response(200)
     self.end_headers()
     self.wfile.write(content)
+
+
+# 请求meta信息
+def fetchMeta(self, form):
+    for field in form.keys():
+        field_item = form[field]
+        key = field_item.name
+        value = field_item.value
+        if key == 'url':
+            url = value
+            print(url)
+    # https://github.com/basti-shi031/CommitClawerSever/commit/ad34ef79b84c8ec3a3f71608051c638510ccd330
+    # 找不为空的最后一个字段是commit_id
+    # 最后第三个不会空的id是project_name
+    keys = url.split('/')
+    keySize = len(keys)
+    commit_hash = ''
+    project_name = ''
+    # 不为空的字段数量
+    validKey = 0
+    for i in range(0, keySize)[::-1]:
+        if keys[i] != '':
+            validKey += 1
+            if validKey == 1:
+                commit_hash = keys[i]
+            elif validKey == 3:
+                project_name = key[i]
+                break
+    cache = CommitCache()
+    isExist = cache.find(commit_hash)
+    cache.close()
+    if isExist:
+        # 如果存在缓存，向服务器请求缓存
+        a = {'commit_hash': commit_hash, 'project_name': project_name}
+        print(commit_hash, project_name)
+        r = requests.post(Api.FETCH_META, json=a)
+        print(r.status_code)
+        print(r.content)
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(r.content)
+    else:
+        # 没有缓存，向github请求meta信息
+        query = Query(url)
+        file_list, meta = query.query()
+        if file_list is not None:
+            if file_list == Message.invalid_url:
+                #     无效url，不访问服务器
+                self.send_response(200)
+                self.end_headers()
+                result = Result(True, "please enter correct commit url")
+                self.wfile.write(result.__dict__.__str__().encode())
+            elif file_list == Message.no_parent_commit:
+                self.send_response(200)
+                self.end_headers()
+                result = Result(True, "commit has no parent commits")
+                self.wfile.write(result.__dict__.__str__().encode())
+            else:
+                self.send_response(200)
+                self.end_headers()
+                result = Result(True, "")
+                # self.wfile.write(result.__dict__.__str__().encode())
+                # 访问服务器
+                # 此时已经获得所有文件，生成一个
+                multipart_encoder = initData(file_list, meta)
+                print(multipart_encoder)
+                r = requests.post(Api.GENERATE_META, data=multipart_encoder,
+                                  headers={'Content-Type': multipart_encoder.content_type})
+                self.wfile.write(r.content)
+                cache = CommitCache()
+                cache.add_commit_hash(commit_hash, project_name)
+                cache.close()
+            #    请求结束
+            # 写入数据库
+            return
+        else:
+            self.send_response(200)
+            result = Result(True, "please enter correct commit url")
+            self.end_headers()
+            self.wfile.write(result.__dict__.__str__().encode())
+            return
 
 
 class PostHandler(BaseHTTPRequestHandler):
@@ -78,121 +161,13 @@ class PostHandler(BaseHTTPRequestHandler):
         )
         path = self.path
         if path.startswith('/fetchFile'):
+            # 向minner请求指定文件和diff link
             fetchFile(self, form)
         else:
-            for field in form.keys():
-                field_item = form[field]
-                key = field_item.name
-                value = field_item.value
-                # filesize = len(filevalue)#文件大小(字节)
-                # print len(filevalue)
-                # print(key)
-                if key == 'artifactId':
-                    artifactId = value
-                if key == 'groupId':
-                    groupId = value
-                if key == 'version':
-                    version = value
-                if key == 'url':
-                    url = value
-                    print(url)
-                # print(value)
-                # with open(filename+".txt",'wb') as f:
-                #     f.write(filevalue)
-
-            commit_hash = url.split('/')[-1]
-            project_name = url.split('/')[-3]
-            cache = CommitCache()
-            isExist = cache.find(commit_hash)
-            cache.close()
-            if isExist:
-                # 如果存在缓存，向服务器请求缓存
-                a = {'commit_hash': commit_hash, 'project_name': project_name}
-                print(commit_hash, project_name)
-                r = requests.post('http://localhost:12007/DiffMiner/main/fetchMetaCache', json=a)
-                print(r.status_code)
-                print(r.content)
-                self.send_response(200)
-                self.end_headers()
-                self.wfile.write(r.content)
-            else:
-                # 没有缓存，向github请求meta信息
-                query = Query(url)
-                file_list, meta = query.query()
-                if file_list is not None:
-                    if file_list == Message.invalid_url:
-                        #     无效url，不访问服务器
-                        self.send_response(200)
-                        self.end_headers()
-                        result = Result(True, "please enter correct commit url")
-                        self.wfile.write(result.__dict__.__str__().encode())
-                    elif file_list == Message.no_parent_commit:
-                        self.send_response(200)
-                        self.end_headers()
-                        result = Result(True, "commit has no parent commits")
-                        self.wfile.write(result.__dict__.__str__().encode())
-                    else:
-                        self.send_response(200)
-                        self.end_headers()
-                        result = Result(True, "")
-                        # self.wfile.write(result.__dict__.__str__().encode())
-                        # 访问服务器
-                        # 此时已经获得所有文件，生成一个
-                        multipart_encoder = initData(file_list, meta)
-                        print(multipart_encoder)
-                        r = requests.post('http://localhost:12007/DiffMiner/main/genCache', data=multipart_encoder,
-                                          headers={'Content-Type': multipart_encoder.content_type})
-                        self.wfile.write(r.content)
-                        cache = CommitCache()
-                        cache.add_commit_hash(commit_hash, project_name)
-                        cache.close()
-                    #    请求结束
-                    # 写入数据库
-                    return
-                else:
-                    self.send_response(200)
-                    result = Result(True, "please enter correct commit url")
-                    self.end_headers()
-                    self.wfile.write(result.__dict__.__str__().encode())
-                    return
-
-
-class ContentHandler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        form = cgi.FieldStorage(
-            fp=self.rfile,
-            headers=self.headers,
-            environ={'REQUEST_METHOD': 'POST',
-                     'CONTENT_TYPE': self.headers['Content-Type'],
-                     }
-        )
-        for field in form.keys():
-            field_item = form[field]
-            key = field_item.name
-            value = field_item.value
-            # filesize = len(filevalue)#文件大小(字节)
-            # print len(filevalue)
-            # print(key)
-            if key == 'artifactId':
-                artifactId = value
-            if key == 'groupId':
-                groupId = value
-            if key == 'version':
-                version = value
-            if key == 'url':
-                url = value
-                print(url)
-            # print(value)
-            # with open(filename+".txt",'wb') as f:
-            #     f.write(filevalue)
-        # author、commit_hash、parent_commit_hash、project_name、prev_file_path、curr_file_path
-        author = ''
-        commit_hash = ''
-        parent_commit_hash = ''
-        project_name = ''
-        prev_file_path = ''
-        curr_file_path = ''
-        file = ''
+            # 根据本地是否有缓存请求数据
+            # 如果有缓存，直接向minner请求meta数据
+            # 如果没有，向github爬去文件和meta信息，交给minner存储。
+            fetchMeta(self, form)
 
 
 def StartServer():
