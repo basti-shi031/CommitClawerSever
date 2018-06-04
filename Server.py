@@ -28,7 +28,7 @@ def initData(file_list, meta):
     print(json.dumps(meta.__dict__))
     multipart_encoder = encoder.MultipartEncoder(
         fields=multiple_files,
-        boundary="xxx---------------xxx",
+        boundary="xxx---fdse---xxx",
     )
 
     return multipart_encoder
