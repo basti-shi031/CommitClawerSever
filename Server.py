@@ -62,6 +62,7 @@ def fetchFile(self, form):
          'prev_file_path': prev_file_path, 'curr_file_path': curr_file_path}
     # 获取指定文件内容 link diff
     r = requests.post(Api.FETCH_FILE_CONTENT, json=a)
+    print(r.status_code)
     content = r.content
     print(content)
     self.send_response(200)
@@ -93,7 +94,7 @@ def fetchMeta(self, form):
             if validKey == 1:
                 commit_hash = keys[i]
             elif validKey == 3:
-                project_name = key[i]
+                project_name = keys[i]
                 break
     cache = CommitCache()
     isExist = cache.find(commit_hash)
