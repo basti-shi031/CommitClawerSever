@@ -155,9 +155,12 @@ def clearCommitTable():
     cache.clear_commit_record()
 
 # 清空服务器上的output数据
-def clearOutputInServer():
+def clearOutputInServer(self):
     response = requests.post(Api.DELETE_OUTPUT_DIR)
-    return response.status_code
+    self.send_response(200)
+    self.end_headers()
+    self.wfile.write(response.content)
+
 
 
 class PostHandler(BaseHTTPRequestHandler):
@@ -176,7 +179,7 @@ class PostHandler(BaseHTTPRequestHandler):
         elif path.startswith('/clearCommitRecord'):
             #     清空数据库缓存，清除
             clearCommitTable()
-            clearOutputInServer()
+            clearOutputInServer(self)
         else:
             # 根据本地是否有缓存请求数据
             # 如果有缓存，直接向minner请求meta数据
