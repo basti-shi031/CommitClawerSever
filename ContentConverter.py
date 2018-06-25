@@ -52,13 +52,24 @@ def convert_commit_info(soup, url):
         U.p(commit_log)
         parent_ids = []
         parent_urls = []
+
+        # 抓取每个文件的状态,add modified
+        # <svg title="added" class="octicon octicon-diff-added" viewBox="0 0 14 16" version="1.1" width="14" height="16" aria-hidden="true">
+        # <svg title="modified" class="octicon octicon-diff-modified" viewBox="0 0 14 16" version="1.1" width="14" height="16" aria-hidden="true">
+        actions = soup.findAll('svg', attrs={'class': re.compile('^octicon octicon-diff-')})
+        # 按顺序存储每个文件的状态
+        actions_list = []
+        for action in actions:
+            actions_list.append(action.get('title'))
+        #     file_name = li.findAll('a', attrs={'href': re.compile('^#diff')})[1].string
+
         for html in parent_branch_id_html:
             parent_branch_id = html.string
             parent_branch_url = html.get('href')
             parents.append(parent_branch_url.split('/')[-1])
             parent_ids.append(parent_branch_id)
             parent_urls.append('https://github.com' + parent_branch_url)
-        meta = Meta(author, date, committer, commit_hash, commit_log, children, parents, project_name)
+        meta = Meta(author, date, committer, commit_hash, commit_log, children, parents, project_name, actions_list)
         # 查找改变的文件列表v3
         # 拼接url
         # https://github.com/spring-projects/spring-framework/
@@ -73,6 +84,7 @@ def convert_commit_info(soup, url):
         diff_url = url.split('/commit/')[0]
         diff_url = diff_url + '/diffs?commit=' + commit_hash + '&sha1=' + parents[
             0] + "&sha2=" + commit_hash + "&start_entry=0"
+        print(diff_url)
         diffResponse, code = NetUtil.fetch_info(diff_url)
         file_list = []
         file_list_htmls = diffResponse.findAll(name='a', attrs={'class': 'link-gray-dark'})
