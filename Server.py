@@ -98,7 +98,6 @@ def fetchMeta(self, form):
                 break
     cache = CommitCache()
     isExist = cache.find(commit_hash)
-    cache.close()
     if isExist:
         # 如果存在缓存，向服务器请求缓存
         a = {'commit_hash': commit_hash, 'project_name': project_name}
@@ -139,7 +138,6 @@ def fetchMeta(self, form):
                 self.wfile.write(r.content)
                 cache = CommitCache()
                 cache.add_commit_hash(commit_hash, project_name)
-                cache.close()
             #    请求结束
             # 写入数据库
             return
@@ -149,6 +147,12 @@ def fetchMeta(self, form):
             self.end_headers()
             self.wfile.write(result.__dict__.__str__().encode())
             return
+
+
+# 删除commit表内数据
+def clearCommitTable():
+    cache = CommitCache()
+    cache.clear_commit_record()
 
 
 class PostHandler(BaseHTTPRequestHandler):
@@ -164,6 +168,9 @@ class PostHandler(BaseHTTPRequestHandler):
         if path.startswith('/fetchFile'):
             # 向minner请求指定文件和diff link
             fetchFile(self, form)
+        elif path.startswith('/clearCommitRecord'):
+            #     清空数据库缓存，清除
+            clearCommitTable()
         else:
             # 根据本地是否有缓存请求数据
             # 如果有缓存，直接向minner请求meta数据

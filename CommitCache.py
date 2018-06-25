@@ -34,7 +34,17 @@ class CommitCache(object):
         # 把数据保存到name username和 id_num中
         self.cursor.execute(sql, {'st_commit': commit_hash1, 'st_project_name': project_name1})
         self.conn.commit()
+        self.close()
 
+    # 根据commit_hash查找是否已经存在于数据库
     def find(self, commit_hash):
         sql = 'select * from commit_table where commit_hash=?'
-        return len(self.cursor.execute(sql, (commit_hash,)).fetchall()) > 0
+        size = len(self.cursor.execute(sql, (commit_hash,)).fetchall()) > 0
+        self.close()
+        return size
+
+    def clear_commit_record(self):
+        sql = '''delete from commit_table''';
+        self.cursor.execute(sql)
+        self.conn.commit()
+        self.close()
