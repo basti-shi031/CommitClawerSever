@@ -9,3 +9,5 @@ GENERATE_META = BASE_URL + '/genCache'
 FETCH_META = BASE_URL+ '/fetchMetaCache'
 # 获取文件内容 link 和 diff
 FETCH_FILE_CONTENT = BASE_URL+ '/fetchContent'
+# 删除服务器中的缓存
+DELETE_OUTPUT_DIR = BASE_URL+ '/clearCache'
