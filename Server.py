@@ -162,7 +162,7 @@ class PostHandler(BaseHTTPRequestHandler):
             #     清空数据库缓存，清除
             clearCommitTable()
             clearOutputInServer(self)
-        else:
+        elif path.startswith('/fetchMeta'):
             # 根据本地是否有缓存请求数据
             # 如果有缓存，直接向minner请求meta数据
             # 如果没有，向github爬去文件和meta信息，交给minner存储。
