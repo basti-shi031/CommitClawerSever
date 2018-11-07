@@ -17,7 +17,7 @@ class Query(object):
         else:
             file_list, meta = fetch(self.url)
             U.p(file_list)
-            if (file_list is None):
+            if file_list is None:
                 # 为空，说明没有parent commit
                 return Message.no_parent_commit, None
             else:
@@ -56,9 +56,9 @@ def download_file(file):
     parent_raws = []
     parent_size = len(file.get_parent_raw_urls())
     for index in range(parent_size):
-        raw_soup, status_code = NetUtil.fetch_info(file.get_parent_raw_urls()[index])
+        raw, status_code = NetUtil.fetch_file_info(file.get_parent_raw_urls()[index])
         if status_code == 200:
-            parent_raw = raw_soup.text
+            parent_raw = raw
         else:
             # 无文件
             parent_raw = ''
