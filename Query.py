@@ -46,8 +46,6 @@ def download_file(file):
     U.p(file.raw_url)
     # if 'ThreadPoolTaskExecutor.java' in file.raw_url:
     #     a = 1
-    if 'ExecutorConfigurationSupport.java' in file.raw_url:
-        a = 1
     raw, status_code = NetUtil.fetch_file_info(file.raw_url)
     if status_code == 200:
         # file.raw = str(raw_soup)
