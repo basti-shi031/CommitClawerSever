@@ -44,8 +44,6 @@ def fetch(url):
 
 def download_file(file):
     U.p(file.raw_url)
-    if 'ExecutorConfigurationSupport.java' in file.raw_url:
-        a = 1
     raw_soup, status_code = NetUtil.fetch_info(file.raw_url)
     if status_code == 200:
         file.raw = str(raw_soup)
