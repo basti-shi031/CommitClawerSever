@@ -36,35 +36,17 @@ def initData(file_list, meta):
 
 # 获取文件
 def fetchFile(self, form):
-    commit_hash = ''
-    parent_commit_hash = ''
-    project_name = ''
-    prev_file_path = ''
-    curr_file_path = ''
-    file = ''
+    dict = {}
     for field in form.keys():
         field_item = form[field]
         key = field_item.name
         value = field_item.value
-        if key == 'commit_hash':
-            commit_hash = value
-        if key == 'parent_commit_hash':
-            parent_commit_hash = value
-        if key == 'project_name':
-            project_name = value
-        if key == 'prev_file_path':
-            prev_file_path = value
-        if key == 'curr_file_path':
-            curr_file_path = value
-        if key == 'file':
-            file = value
-    a = {'commit_hash': commit_hash, 'parent_commit_hash': parent_commit_hash, 'project_name': project_name,
-         'prev_file_path': prev_file_path, 'curr_file_path': curr_file_path}
+        dict[key] = value
     # 获取指定文件内容 link diff
-    r = requests.post(Api.FETCH_FILE_CONTENT, json=a)
+    r = requests.post(Api.FETCH_FILE_CONTENT,data=dict)
     print(r.status_code)
     content = r.content
-    print(content)
+    # print(content)
     self.send_response(200)
     self.end_headers()
     self.wfile.write(content)
@@ -180,7 +162,7 @@ class PostHandler(BaseHTTPRequestHandler):
             #     清空数据库缓存，清除
             clearCommitTable()
             clearOutputInServer(self)
-        else:
+        elif path.startswith('/fetchMeta'):
             # 根据本地是否有缓存请求数据
             # 如果有缓存，直接向minner请求meta数据
             # 如果没有，向github爬去文件和meta信息，交给minner存储。
