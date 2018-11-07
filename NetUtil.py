@@ -4,10 +4,18 @@ from bs4 import BeautifulSoup
 
 # 根据url返回soup信息
 def fetch_info(url):
-    response = requests.get(url,timeout=30)
+    response = requests.get(url, timeout=30)
     response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, "html.parser")
     return soup, response.status_code
+
+
+# 根据url返回soup信息
+def fetch_file_info(url):
+    response = requests.get(url, timeout=30)
+    response.encoding = 'utf-8'
+    # soup = BeautifulSoup(response.text,from_encoding='utf-8')
+    return response.text, response.status_code
 
 
 def convert2_raw_url(file):

@@ -13,7 +13,7 @@ class Query(object):
     def query(self):
         U.p(self.url)
         if not re.match('^https://github.com/', self.url):
-            return Message.invalid_url,None
+            return Message.invalid_url, None
         else:
             file_list, meta = fetch(self.url)
             U.p(file_list)
@@ -44,10 +44,14 @@ def fetch(url):
 
 def download_file(file):
     U.p(file.raw_url)
-    raw_soup, status_code = NetUtil.fetch_info(file.raw_url)
+    # if 'ThreadPoolTaskExecutor.java' in file.raw_url:
+    #     a = 1
+    if 'ExecutorConfigurationSupport.java' in file.raw_url:
+        a = 1
+    raw, status_code = NetUtil.fetch_file_info(file.raw_url)
     if status_code == 200:
         # file.raw = str(raw_soup)
-        file.raw = raw_soup.encode(formatter=None)
+        file.raw = raw
     else:
         file.raw = ''
 
