@@ -46,7 +46,7 @@ def download_file(file):
     U.p(file.raw_url)
     raw_soup, status_code = NetUtil.fetch_info(file.raw_url)
     if status_code == 200:
-        file.raw = raw_soup.text
+        file.raw = str(raw_soup)
     else:
         file.raw = ''
 
