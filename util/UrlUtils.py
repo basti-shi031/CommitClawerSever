@@ -16,10 +16,10 @@ class UrlUtils(object):
                 validKey += 1
                 if validKey == 1:
                     commit_hash = keys[i]
-                elif validKey == 2:
-                    owner = keys[i]
                 elif validKey == 3:
                     project_name = keys[i]
+                elif validKey == 4:
+                    owner = keys[i]
                     break
         return commit_hash, owner+'__fdse__'+project_name
 
