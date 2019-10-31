@@ -8,6 +8,7 @@ class UrlUtils(object):
         keySize = len(keys)
         commit_hash = ''
         project_name = ''
+        owner = ''
         # 不为空的字段数量
         validKey = 0
         for i in range(0, keySize)[::-1]:
@@ -15,10 +16,12 @@ class UrlUtils(object):
                 validKey += 1
                 if validKey == 1:
                     commit_hash = keys[i]
+                elif validKey == 2:
+                    owner = keys[i]
                 elif validKey == 3:
                     project_name = keys[i]
                     break
-        return commit_hash, project_name
+        return commit_hash, owner+'__fdse__'+project_name
 
     @staticmethod
     def getUrl(form):
