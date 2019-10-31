@@ -18,10 +18,8 @@ class UrlUtils(object):
                     commit_hash = keys[i]
                 elif validKey == 3:
                     project_name = keys[i]
-                elif validKey == 4:
-                    owner = keys[i]
                     break
-        return commit_hash, owner+'__fdse__'+project_name
+        return commit_hash, project_name
 
     @staticmethod
     def getUrl(form):
