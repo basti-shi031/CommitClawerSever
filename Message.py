@@ -1,2 +1,5 @@
-invalid_url = '无效url'
-no_parent_commit = '无parent commit'
+invalid_url = 'invalid url'
+no_parent_commit = 'no parent commit'
+internet_error = 'internet error'
+no_related_java_file = 'no_related_java_file'
+success = 'success'
