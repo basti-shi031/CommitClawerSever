@@ -23,7 +23,6 @@ class MetaNet(object):
     @staticmethod
     def fetchMetaFromMiner(commit_hash, project_name, self2):
         a = {'commit_hash': commit_hash, 'project_name': project_name}
-        U.p(commit_hash, project_name)
         r = requests.post(Api.FETCH_META, json=a)
         print(r.status_code)
         print(r.content)
