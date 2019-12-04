@@ -27,7 +27,7 @@ class UrlUtils(object):
             field_item = form[field]
             key = field_item.name
             value = field_item.value
-            if key == 'url':
+            if key == 'commit_url':
                 url = value
                 print(url)
         return url
