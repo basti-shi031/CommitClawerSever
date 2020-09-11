@@ -24,10 +24,16 @@ def convert_commit_info(soup, url):
         commit_log = None
         parents = []
         # <a data-pjax="#js-repo-pjax-container" href="/basti-shi031/LoopViewPager">LoopViewPager</a>
-        project_name = soup.find('a', attrs={'data-pjax': '#js-repo-pjax-container'}).text
+        project_name = soup.find('a', attrs={'data-pjax': '#js-repo-pjax-container'})
+        if project_name == None:
+            return False,None
+        project_name = project_name.text
         # <a class="url fn" rel="author" href="/basti-shi031">basti-shi031</a>
         # 作者
-        author = soup.find('a', attrs={'class': 'url fn', 'rel': 'author'}).text
+        author = soup.find('a', attrs={'class': 'url fn', 'rel': 'author'})
+        if author == None:
+            return False,None
+        author = author.text
         # <relative-time datetime="2016-01-11T03:09:39Z" title="2016年1月11日 GMT+8 上午11:09">on 11 Jan 2016</relative-time>
         # 时间
         date = soup.find('relative-time').get('datetime')
@@ -35,16 +41,25 @@ def convert_commit_info(soup, url):
         # class="commit-author tooltipped tooltipped-s user-mention"
         # aria-label="View all commits by basti-shi031">basti-shi031</a>
         # committer
-        committer = soup.find('a', attrs={'class': 'commit-author tooltipped tooltipped-s user-mention'}).text
+        committer = soup.find('a', attrs={'class': 'commit-author user-mention'})
+        if committer == None:
+            return False
+        committer = committer.text
         # <span class="sha user-select-contain">1a2219ebb73464497f5efa8dba8823781a4e887e</span>
         # commit_hash
-        commit_hash = soup.find('span', attrs={'class': 'sha user-select-contain'}).text
+        commit_hash = soup.find('span', attrs={'class': 'sha user-select-contain'})
+        if commit_hash == None:
+            return False
+        commit_hash = commit_hash.text
         # <p class="commit-title">
         #       Merge branch 'master' of <a href="https://git
         # hub.com/basti-shi031/RichTextView">https://github.com/basti-shi031/RichTextView</a>
         #     </p>
         # commit_log
-        commit_log = soup.find('p', attrs={'class': 'commit-title'}).text
+        commit_log = soup.find('p', attrs={'class': 'commit-title'})
+        if commit_log == None:
+            return False
+        commit_log = commit_log.text
         U.p(author)
         U.p(date)
         U.p(committer)

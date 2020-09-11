@@ -20,3 +20,4 @@ class FileNet(object):
         self2.send_response(r.status_code)
         self2.end_headers()
         self2.wfile.write(content)
+        return True

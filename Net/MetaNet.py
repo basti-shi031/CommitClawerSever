@@ -82,11 +82,14 @@ class MetaNet(object):
             self2.end_headers()
             result = Result(True, "internet error")
             self2.wfile.write(result.__dict__.__str__().encode())
+        return True
 
     # 请求meta信息
     @staticmethod
     def fetchMeta(form, self2):
         url = UrlUtils.getUrl(form)
+        if url == None:
+            return False
         # https://github.com/basti-shi031/CommitClawerSever/commit/ad34ef79b84c8ec3a3f71608051c638510ccd330
         # 根据commitUrl生成commitHash 和 projectName
         commit_hash, project_name = UrlUtils.genCommitHashAndProjectName(url)
@@ -96,10 +99,9 @@ class MetaNet(object):
         if isExist:
             # 如果存在缓存，向服务器请求缓存
             status_code = MetaNet.fetchMetaFromMiner(commit_hash, project_name, self2)
-
             if status_code != 200:
                 # 向服务器请求缓存程序错误，向GitHub请求Meta
                 return MetaNet.fetchMetaFromGithub(commit_hash, project_name, self2, url);
-
+            return False
         else:
             return MetaNet.fetchMetaFromGithub(commit_hash, project_name, self2, url)
