@@ -15,9 +15,12 @@ class FileNet(object):
             dict[key] = value
         # 获取指定文件内容 link diff
         r = requests.post(Api.FETCH_FILE_CONTENT, data=dict)
-        content = r.content
-        # print(content)
-        self2.send_response(r.status_code)
-        self2.end_headers()
-        self2.wfile.write(content)
-        return True
+        if r.status_code == 200:
+            # content = r.content
+            # self2.send_response(r.status_code)
+            # self2.end_headers()
+            # self2.wfile.write(content)
+            return True,content
+        else:
+            return False,"error fetch file content from cldiff"
+        

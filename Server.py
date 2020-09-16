@@ -21,19 +21,26 @@ class PostHandler(BaseHTTPRequestHandler):
         path = self.path
         if path.startswith('/fetchFile'):
             # 向minner请求指定文件和diff link
-            res = FileNet.fetchFile(form, self2=self)
+            res,content = FileNet.fetchFile(form, self2=self)
         elif path.startswith('/fetchMeta'):
             # 根据本地是否有缓存请求数据
             # 如果有缓存，直接向minner请求meta数据
             # 如果没有，向github爬去文件和meta信息，交给minner存储。
-            res = MetaNet.fetchMeta(form,self2=self)
-        if not res:
+            res,content = MetaNet.fetchMeta(form,self2=self)
+        if res:
             self.send_response(200)
-            DUMMY_RESPONSE = "null response"
-            self.send_header("Content-type", "text/html")
-            self.send_header("Content-length", len(DUMMY_RESPONSE))
+            self.send_header("Content-type", "application/json")
+            self.send_header("Content-length", len(content))
             self.end_headers()
-            self.wfile.write(DUMMY_RESPONSE.encode('utf-8'))
+            self.wfile.write(content)
+        else:
+            self.send_response(200)
+            if content == None:
+                content = "null response"
+            self.send_header("Content-type", "text/html")
+            self.send_header("Content-length", len(content))
+            self.end_headers()
+            self.wfile.write(content.encode('utf-8'))
 
     def do_GET(self):
         path = self.path
